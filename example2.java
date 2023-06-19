@@ -1,10 +1,6 @@
-# GET-value-to-POST
- the GET request as the request body in the POST request 
-
-
-
 ```
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -21,7 +17,7 @@ public class HttpClientExample {
         // Make the GET request to retrieve the value
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         HttpGet httpGet = new HttpGet("http://example.com/api/get");
-        
+
         String value = null;
         try {
             HttpResponse response = httpClient.execute(httpGet);
@@ -38,14 +34,21 @@ public class HttpClientExample {
             }
         }
 
-        // Make the POST request with the value in the request body
+        // Create the UpdateCustomerRequest object with the value
+        UpdateCustomerRequest request = new UpdateCustomerRequest(value);
+
+        // Make the POST request with the UpdateCustomerRequest as the request body
         httpClient = HttpClientBuilder.create().build();
         HttpPost httpPost = new HttpPost("http://example.com/api/post");
-        
+
         try {
-            StringEntity requestBody = new StringEntity(value);
-            httpPost.setEntity(requestBody);
-            
+            // Convert the UpdateCustomerRequest to JSON string
+            ObjectMapper objectMapper = new ObjectMapper();
+            String requestBody = objectMapper.writeValueAsString(request);
+
+            StringEntity requestEntity = new StringEntity(requestBody);
+            httpPost.setEntity(requestEntity);
+
             HttpResponse response = httpClient.execute(httpPost);
             // Process the response as needed
         } catch (IOException e) {
@@ -58,8 +61,24 @@ public class HttpClientExample {
             }
         }
     }
+
+    // Custom POJO for the UpdateCustomerRequest
+    static class UpdateCustomerRequest {
+        private String value;
+
+        public UpdateCustomerRequest(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
 }
 
 
 ```
-
